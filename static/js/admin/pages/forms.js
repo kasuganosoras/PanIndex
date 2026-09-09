@@ -102,6 +102,13 @@
       "</div>",
   };
 
+  function normalizeThemeName(theme) {
+    if (theme === "vue") return "oxygen";
+    if (theme === "vue-light") return "oxygen-light";
+    if (theme === "vue-dark") return "oxygen-dark";
+    return theme || "mdui";
+  }
+
   PanAdmin.pages.Appearance = {
     name: "PageAppearance",
     inject: ["store"],
@@ -109,7 +116,7 @@
       var c = this.store.config || {};
       return {
         form: {
-          theme: c.theme || "mdui",
+          theme: normalizeThemeName(c.theme),
           favicon_url: c.favicon_url || "",
           footer: c.footer || "",
           css: c.css || "",
@@ -144,9 +151,9 @@
       '        <option value="mdui">mdui</option>' +
       '        <option value="mdui-light">mdui-light</option>' +
       '        <option value="mdui-dark">mdui-dark</option>' +
-      '        <option value="vue">vue</option>' +
-      '        <option value="vue-light">vue-light</option>' +
-      '        <option value="vue-dark">vue-dark</option>' +
+      '        <option value="oxygen">oxygen</option>' +
+      '        <option value="oxygen-light">oxygen-light</option>' +
+      '        <option value="oxygen-dark">oxygen-dark</option>' +
       '        <option value="bootstrap">bootstrap</option>' +
       '        <option value="classic">classic</option>' +
       "      </select>" +

@@ -1,5 +1,5 @@
-<!doctype html>
-<html lang="zh-CN" class="{{- if eq $.theme "vue-dark"}}dark{{- end}}">
+﻿<!doctype html>
+<html lang="zh-CN" class="{{- if or (eq $.theme "oxygen-dark") (eq $.theme "vue-dark")}}dark{{- end}}">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"/>
@@ -33,7 +33,7 @@
 			}
 		}
 	</script>
-	<link rel="stylesheet" href="{{index $.config.CdnFiles "vue@theme@css"}}?v={{$.version}}">
+	<link rel="stylesheet" href="{{index $.config.CdnFiles "oxygen@theme@css"}}?v={{$.version}}">
 	<link rel="stylesheet" href="{{index $.config.CdnFiles "viewer@css"}}">
 	<script src="{{index $.config.CdnFiles "vue@js"}}"></script>
 	<script src="{{index $.config.CdnFiles "lucide@js"}}"></script>
@@ -52,16 +52,16 @@
 	<script>
 		(function () {
 			var theme = {{toJSON $.theme}};
-			var dark = theme === 'vue-dark' || (theme === 'vue' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			var dark = theme === 'oxygen-dark' || theme === 'vue-dark' || ((theme === 'oxygen' || theme === 'vue') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 			document.documentElement.classList.toggle('dark', !!dark);
 		})();
 	</script>
 </head>
 <body>
 <div id="app"></div>
-<script src="{{index $.config.CdnFiles "vue@theme@js"}}?v={{$.version}}"></script>
+<script src="{{index $.config.CdnFiles "oxygen@theme@js"}}?v={{$.version}}"></script>
 <script>
-	window.PanVueTheme.mountListing({
+	window.PanOxygenTheme.mountListing({
 		title: {{toJSON $.title}},
 		path: {{toJSON $.path}},
 		full_path: {{toJSON $.full_path}},

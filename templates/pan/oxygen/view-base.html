@@ -1,6 +1,6 @@
-{{define "templates/pan/vue/view-base.html"}}
+﻿{{define "templates/pan/oxygen/view-base.html"}}
 <!doctype html>
-<html lang="zh-CN" class="{{- if eq $.theme "vue-dark"}}dark{{- end}}">
+<html lang="zh-CN" class="{{- if or (eq $.theme "oxygen-dark") (eq $.theme "vue-dark")}}dark{{- end}}">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no"/>
@@ -21,7 +21,7 @@
 	<script>
 		tailwind.config = { darkMode: 'class' }
 	</script>
-	<link rel="stylesheet" href="{{index $.config.CdnFiles "vue@theme@css"}}?v={{$.version}}">
+	<link rel="stylesheet" href="{{index $.config.CdnFiles "oxygen@theme@css"}}?v={{$.version}}">
 	<script src="{{index $.config.CdnFiles "vue@js"}}"></script>
 	<script src="{{index $.config.CdnFiles "lucide@js"}}"></script>
 	<script src="{{index $.config.CdnFiles "jquery@js"}}"></script>
@@ -41,44 +41,44 @@
 	<script>
 		(function () {
 			var theme = {{toJSON $.theme}};
-			var dark = theme === 'vue-dark' || (theme === 'vue' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+			var dark = theme === 'oxygen-dark' || theme === 'vue-dark' || ((theme === 'oxygen' || theme === 'vue') && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
 			document.documentElement.classList.toggle('dark', !!dark);
 		})();
 	</script>
 </head>
 <body>
 <div id="app"></div>
-<div id="vue-preview-content" style="display:none">
+<div id="oxygen-preview-content" style="display:none">
 {{- if not $.has_pwd}}
 {{- if (index $.fns 0).FileType}}
 {{- if contains $.config.Image (index $.fns 0).FileType}}
-{{block "vue-content-img" .}}{{end}}
+{{block "oxygen-content-img" .}}{{end}}
 {{- else if contains $.config.Audio (index $.fns 0).FileType}}
-{{block "vue-content-audio" .}}{{end}}
+{{block "oxygen-content-audio" .}}{{end}}
 {{- else if contains $.config.Video (index $.fns 0).FileType}}
-{{block "vue-content-video" .}}{{end}}
+{{block "oxygen-content-video" .}}{{end}}
 {{- else if contains $.config.Code (index $.fns 0).FileType}}
-{{block "vue-content-code" .}}{{end}}
+{{block "oxygen-content-code" .}}{{end}}
 {{- else if contains $.config.Doc (index $.fns 0).FileType}}
-{{block "vue-content-office" .}}{{end}}
+{{block "oxygen-content-office" .}}{{end}}
 {{- else if eq "pdf" (index $.fns 0).FileType}}
-{{block "vue-content-pdf" .}}{{end}}
+{{block "oxygen-content-pdf" .}}{{end}}
 {{- else if eq "epub" (index $.fns 0).FileType}}
-{{block "vue-content-epub" .}}{{end}}
+{{block "oxygen-content-epub" .}}{{end}}
 {{- else if eq "md" (index $.fns 0).FileType}}
-{{block "vue-content-md" .}}{{end}}
+{{block "oxygen-content-md" .}}{{end}}
 {{- else}}
-{{block "vue-content-ns" .}}{{end}}
+{{block "oxygen-content-ns" .}}{{end}}
 {{- end}}
 {{- else}}
-{{block "vue-content-ns" .}}{{end}}
+{{block "oxygen-content-ns" .}}{{end}}
 {{- end}}
 {{- end}}
 </div>
-<script src="{{index $.config.CdnFiles "vue@theme@js"}}?v={{$.version}}"></script>
-<script src="{{index $.config.CdnFiles "vue@view@js"}}?v={{$.version}}"></script>
+<script src="{{index $.config.CdnFiles "oxygen@theme@js"}}?v={{$.version}}"></script>
+<script src="{{index $.config.CdnFiles "oxygen@view@js"}}?v={{$.version}}"></script>
 <script>
-	window.PanVueTheme.mountView({
+	window.PanOxygenTheme.mountView({
 		title: {{toJSON $.title}},
 		path: {{toJSON $.path}},
 		full_path: {{toJSON $.full_path}},
@@ -123,26 +123,26 @@
 		next_file: {{toJSON $.next_file}},
 		version: {{toJSON $.version}}
 	});
-	document.dispatchEvent(new Event("pan-vue-view-ready"));
+	document.dispatchEvent(new Event("pan-oxygen-view-ready"));
 </script>
 {{- if not $.has_pwd}}
 {{- if (index $.fns 0).FileType}}
 {{- if contains $.config.Audio (index $.fns 0).FileType}}
-{{block "vue-scripts-audio" .}}{{end}}
+{{block "oxygen-scripts-audio" .}}{{end}}
 {{- else if contains $.config.Video (index $.fns 0).FileType}}
-{{block "vue-scripts-video" .}}{{end}}
+{{block "oxygen-scripts-video" .}}{{end}}
 {{- else if contains $.config.Code (index $.fns 0).FileType}}
-{{block "vue-scripts-code" .}}{{end}}
+{{block "oxygen-scripts-code" .}}{{end}}
 {{- else if contains $.config.Doc (index $.fns 0).FileType}}
-{{block "vue-scripts-office" .}}{{end}}
+{{block "oxygen-scripts-office" .}}{{end}}
 {{- else if eq "pdf" (index $.fns 0).FileType}}
-{{block "vue-scripts-pdf" .}}{{end}}
+{{block "oxygen-scripts-pdf" .}}{{end}}
 {{- else if eq "epub" (index $.fns 0).FileType}}
-{{block "vue-scripts-epub" .}}{{end}}
+{{block "oxygen-scripts-epub" .}}{{end}}
 {{- else if eq "md" (index $.fns 0).FileType}}
-{{block "vue-scripts-md" .}}{{end}}
+{{block "oxygen-scripts-md" .}}{{end}}
 {{- else if not (contains $.config.Image (index $.fns 0).FileType)}}
-{{block "vue-scripts-ns" .}}{{end}}
+{{block "oxygen-scripts-ns" .}}{{end}}
 {{- end}}
 {{- end}}
 {{- end}}

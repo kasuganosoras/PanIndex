@@ -1,13 +1,13 @@
-{{define "templates/pan/vue/view-audio.html"}}
-{{template "templates/pan/vue/view-base.html" .}}
+﻿{{define "templates/pan/oxygen/view-audio.html"}}
+{{template "templates/pan/oxygen/view-base.html" .}}
 {{end}}
-{{define "vue-content-audio"}}
+{{define "oxygen-content-audio"}}
 <link rel="stylesheet" href="{{index $.config.CdnFiles "APlayer@css"}}">
 <div class="min-h-[300px] flex items-center justify-center p-4">
 	<div id="aplayer" class="w-full max-w-[500px]" data-lrc-path="{{$.config.LrcPath}}" data-enable-lrc="{{$.config.EnableLrc}}"></div>
 </div>
 {{end}}
-{{define "vue-scripts-audio"}}
+{{define "oxygen-scripts-audio"}}
 <script src="{{index $.config.CdnFiles "APlayer@js"}}"></script>
 <script>
 	(function () {

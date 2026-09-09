@@ -1,7 +1,7 @@
 (function () {
   "use strict";
 
-  var T = window.PanVueTheme;
+  var T = window.PanOxygenTheme || window.PanVueTheme;
   if (!T || typeof Vue === "undefined") return;
 
   function createViewShell(data, contentSelector) {
@@ -27,7 +27,7 @@
           password: "",
           hasParent: !!data.has_parent,
           parentPath: data.parent_path || "/",
-          theme: data.theme || "vue",
+          theme: data.theme || "oxygen",
           isDark: initialDark,
           isAdmin: !!data.is_admin_login,
           access: (data.config && data.config.access) || "0",
@@ -67,7 +67,7 @@
         T.applyDarkClass(this.isDark);
         document.addEventListener("click", this.onDocClick);
         this.fileLink = encodeURI(location.protocol + "//" + location.host + prefix + (this.file.path || ""));
-        var slot = document.querySelector(contentSelector || "#vue-preview-content");
+        var slot = document.querySelector(contentSelector || "#oxygen-preview-content");
         var target = this.$refs.contentHost;
         if (slot && target) {
           while (slot.firstChild) {
@@ -101,7 +101,7 @@
         toggleTheme: function () {
           this.isDark = !this.isDark;
           T.applyDarkClass(this.isDark);
-          var next = this.isDark ? "vue-dark" : "vue-light";
+          var next = this.isDark ? "oxygen-dark" : "oxygen-light";
           this.theme = next;
           T.cookieSet("theme", next, 3650);
         },
@@ -249,12 +249,12 @@
       pwd_path: raw.pwd_path || "",
       has_parent: raw.has_parent,
       parent_path: raw.parent_path || "/",
-      theme: raw.theme || "vue",
+      theme: raw.theme || "oxygen",
       is_admin_login: raw.is_admin_login,
       last_file: raw.last_file || "",
       next_file: raw.next_file || "",
       file: files[0] || {},
     };
-    createViewShell(data, "#vue-preview-content").mount("#app");
+    createViewShell(data, "#oxygen-preview-content").mount("#app");
   };
 })();

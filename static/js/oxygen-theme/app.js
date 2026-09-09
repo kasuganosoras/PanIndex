@@ -41,8 +41,8 @@
   }
 
   function resolveDark(theme) {
-    if (theme === "vue-dark") return true;
-    if (theme === "vue-light") return false;
+    if (theme === "oxygen-dark" || theme === "vue-dark") return true;
+    if (theme === "oxygen-light" || theme === "vue-light") return false;
     return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
   }
 
@@ -169,7 +169,7 @@
           searchKey: data.search_key || "",
           searchOpen: !!(data.search_key && data.search_key.length),
           layout: data.layout || "view_comfy",
-          theme: data.theme || "vue",
+          theme: data.theme || "oxygen",
           isDark: initialDark,
           isAdmin: !!data.is_admin_login,
           version: data.version || "",
@@ -182,6 +182,7 @@
           shareUrl: "",
           toastMsg: "",
           showFab: false,
+          loading: false,
         };
       },
       computed: {
@@ -211,17 +212,22 @@
       mounted: function () {
         applyDarkClass(this.isDark);
         var self = this;
-        window.addEventListener("scroll", function () {
+        this._onScroll = function () {
           self.showFab = window.scrollY > 240;
-        });
+        };
+        window.addEventListener("scroll", this._onScroll);
+        window.addEventListener("popstate", this.onPopState);
         document.addEventListener("click", this.onDocClick);
-        if (!this.hasPwd) {
+        if (!this.hasPwd && !this.searchKey) {
           this.loadMarkdown("HEAD.md", "head");
           this.loadMarkdown("README.md", "readme");
         }
       },
       beforeUnmount: function () {
         document.removeEventListener("click", this.onDocClick);
+        window.removeEventListener("popstate", this.onPopState);
+        if (this._onScroll) window.removeEventListener("scroll", this._onScroll);
+        if (this._navAbort) this._navAbort.abort();
       },
       methods: {
         onDocClick: function () {
@@ -238,41 +244,220 @@
         iconOf: function (file) {
           return fileIconName(file);
         },
+        pathFromLocation: function () {
+          var path = location.pathname || "/";
+          if (prefix && path.indexOf(prefix) === 0) {
+            path = path.slice(prefix.length) || "/";
+          }
+          if (!path) path = "/";
+          if (path !== "/" && path.charAt(path.length - 1) === "/") {
+            path = path.slice(0, -1);
+          }
+          return path;
+        },
+        updateDocumentTitle: function () {
+          var base = this.siteName || this.title || "PanIndex";
+          if (this.searchKey) {
+            document.title = base + " 搜索:" + this.searchKey;
+          } else {
+            document.title = base + " " + (this.path || "/");
+          }
+        },
+        applyIndexPayload: function (data, opts) {
+          opts = opts || {};
+          data = data || {};
+          this.path = data.path || "/";
+          this.fullPath = data.full_path || data.fullPath || "/";
+          this.prePaths = data.pre_paths || data.prePaths || [];
+          this.hasParent = !!(data.has_parent || data.hasParent);
+          this.parentPath = data.parent_path || data.parentPath || "/";
+          this.accountPath = data.account_path || data.accountPath || this.accountPath;
+          this.files = normalizeFiles(data.content || data.fns || data.files || []);
+          if (data.account) this.account = normalizeAccount(data.account);
+          if (data.title) this.title = data.title;
+          this.hasPwd = !!opts.hasPwd;
+          this.pwdErr = opts.pwdErr || "";
+          this.pwdPath = data.pwd_path || data.pwdPath || this.pwdPath || "";
+          this.password = "";
+          if (opts.searchKey !== undefined) {
+            this.searchKey = opts.searchKey;
+            if (opts.searchKey) this.searchOpen = true;
+          }
+          this.updateDocumentTitle();
+        },
+        refreshMarkdown: function () {
+          this.headHtml = "";
+          this.readmeHtml = "";
+          if (this.hasPwd || this.searchKey) return;
+          this.loadMarkdown("HEAD.md", "head");
+          this.loadMarkdown("README.md", "readme");
+        },
+        navigateTo: function (fullPath, opts) {
+          opts = opts || {};
+          var self = this;
+          fullPath = fullPath || "/";
+          if (fullPath !== "/" && fullPath.charAt(fullPath.length - 1) === "/") {
+            fullPath = fullPath.slice(0, -1);
+          }
+
+          if (this._navAbort) this._navAbort.abort();
+          this._navAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+          this.loading = true;
+          this.showAccountMenu = false;
+          this.showSortMenu = false;
+          this.showShareMenu = false;
+
+          var formData = new FormData();
+          formData.append("path", fullPath);
+          var sortCol = cookieGet("sort_column");
+          var sortOrd = cookieGet("sort_order");
+          // Match SSR SortCheck: only override when cookies exist; otherwise server uses config defaults.
+          if (sortCol) formData.append("sort_by", sortCol);
+          if (sortOrd) formData.append("order", sortOrd);
+
+          var fetchOpts = {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          };
+          if (this._navAbort) fetchOpts.signal = this._navAbort.signal;
+
+          return fetch(prefix + "/api/v3/public/index", fetchOpts)
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (resp) {
+              var data = resp.data || {};
+              if (resp.status === 0 && data.is_folder === false) {
+                location.href = self.url(data.full_path || fullPath) + "?v";
+                return;
+              }
+              self.applyIndexPayload(data, {
+                hasPwd: resp.status === 403,
+                pwdErr: resp.msg || "",
+                searchKey: "",
+              });
+              var nextUrl = self.url(self.fullPath || fullPath);
+              if (opts.replace) {
+                history.replaceState({ spa: 1, path: self.fullPath }, "", nextUrl);
+              } else {
+                history.pushState({ spa: 1, path: self.fullPath }, "", nextUrl);
+              }
+              if (!opts.keepScroll) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+              self.refreshMarkdown();
+            })
+            .catch(function (err) {
+              if (err && err.name === "AbortError") return;
+              toast("加载失败，请重试");
+            })
+            .finally(function () {
+              self.loading = false;
+            });
+        },
+        runSearch: function (key, opts) {
+          opts = opts || {};
+          var self = this;
+          if (this._navAbort) this._navAbort.abort();
+          this._navAbort = typeof AbortController !== "undefined" ? new AbortController() : null;
+          this.loading = true;
+          this.showAccountMenu = false;
+          this.showSortMenu = false;
+          this.showShareMenu = false;
+
+          var formData = new FormData();
+          formData.append("key", key);
+          var fetchOpts = {
+            method: "POST",
+            body: formData,
+            credentials: "same-origin",
+          };
+          if (this._navAbort) fetchOpts.signal = this._navAbort.signal;
+
+          return fetch(prefix + "/api/v3/public/search", fetchOpts)
+            .then(function (r) {
+              return r.json();
+            })
+            .then(function (resp) {
+              var data = resp.data || {};
+              self.files = normalizeFiles(data.content || []);
+              self.hasPwd = false;
+              self.pwdErr = "";
+              self.searchKey = key;
+              self.searchOpen = true;
+              self.headHtml = "";
+              self.readmeHtml = "";
+              self.updateDocumentTitle();
+              var nextUrl = (prefix || "") + "/?search=" + encodeURIComponent(key);
+              if (opts.replace) {
+                history.replaceState({ spa: 1, search: key }, "", nextUrl);
+              } else {
+                history.pushState({ spa: 1, search: key }, "", nextUrl);
+              }
+              if (!opts.keepScroll) {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+              }
+            })
+            .catch(function (err) {
+              if (err && err.name === "AbortError") return;
+              toast("搜索失败，请重试");
+            })
+            .finally(function () {
+              self.loading = false;
+            });
+        },
+        onPopState: function () {
+          var params = new URLSearchParams(location.search || "");
+          var search = params.get("search");
+          if (search) {
+            this.runSearch(search, { replace: true, keepScroll: true });
+          } else {
+            this.navigateTo(this.pathFromLocation(), { replace: true, keepScroll: true });
+          }
+        },
         toggleTheme: function () {
           this.isDark = !this.isDark;
           applyDarkClass(this.isDark);
-          var next = this.isDark ? "vue-dark" : "vue-light";
+          var next = this.isDark ? "oxygen-dark" : "oxygen-light";
           this.theme = next;
           cookieSet("theme", next, 3650);
         },
         toggleLayout: function () {
           this.layout = this.isGrid ? "view_comfy" : "view_list";
           cookieSet("layout", this.layout, 3650);
-          location.reload();
         },
         setSort: function (column, order) {
           cookieSet("sort_column", column, 3650);
           cookieSet("sort_order", order, 3650);
-          location.reload();
+          this.showSortMenu = false;
+          if (this.searchKey) return;
+          this.navigateTo(this.fullPath || this.pathFromLocation(), { replace: true, keepScroll: true });
         },
         resetSort: function () {
           cookieSet("sort_column", "default", 3650);
           cookieSet("sort_order", "null", 3650);
-          location.reload();
+          this.showSortMenu = false;
+          if (this.searchKey) return;
+          this.navigateTo(this.fullPath || this.pathFromLocation(), { replace: true, keepScroll: true });
         },
         goHome: function () {
-          location.href = this.url("/") || "/";
+          this.navigateTo("/");
         },
         goPath: function (pathUrl) {
-          location.href = this.url(pathUrl);
+          this.navigateTo(pathUrl || "/");
         },
         goParent: function () {
-          location.href = this.url(this.parentPath);
+          this.navigateTo(this.parentPath || "/");
         },
         openFile: function (file, ev) {
           if (ev && ev.target && ev.target.closest && ev.target.closest("[data-stop]")) return;
+          if (file.is_folder) {
+            this.navigateTo(file.path);
+            return;
+          }
           var u = this.fileUrl(file);
-          if (file.is_folder || String(this.config.enable_preview) === "0") {
+          if (String(this.config.enable_preview) === "0") {
             location.href = u;
           } else {
             location.href = u + "?v";
@@ -332,7 +517,7 @@
           if (e.key !== "Enter") return;
           var key = (this.searchKey || "").trim();
           if (!key || key.length >= 30) return;
-          location.href = (prefix || "") + "/?search=" + encodeURIComponent(key);
+          this.runSearch(key);
         },
         submitPwd: function () {
           var pwd = (this.password || "").trim();
@@ -357,7 +542,7 @@
           } else {
             cookieSet("file_pwd", ppwd, 3650);
           }
-          location.reload();
+          this.navigateTo(this.fullPath || this.pathFromLocation(), { replace: true });
         },
         loadMarkdown: function (name, kind) {
           if (kind === "head" && String(this.config.head) !== "1") return;
@@ -452,7 +637,7 @@
         },
       },
       template:
-        '<div class="vt-container">' +
+        '<div class="vt-container" :class="{ \'is-loading\': loading }">' +
         '  <div v-if="headHtml" class="vt-md-card">' +
         '    <div class="vt-md-card-header"><Icon name="file-text" :size="16" /><span>HEAD.md</span></div>' +
         '    <div class="vt-md" v-html="headHtml"></div>' +
@@ -465,9 +650,9 @@
         '          <span class="vt-chip-title" @click.stop="goHome()">{{ displayTitle }}</span>' +
         "        </div>" +
         '        <div v-if="showAccountMenu" class="vt-menu left-0 top-10" @click.stop>' +
-        '          <a v-for="a in accounts" :key="a.name" class="vt-menu-item" :href="url(\'/\' + a.name)">' +
+        '          <button type="button" v-for="a in accounts" :key="a.name" class="vt-menu-item" @click="goPath(\'/\' + a.name)">' +
         '            <Icon name="user" :size="16" /> {{ a.name }}' +
-        "          </a>" +
+        "          </button>" +
         "        </div>" +
         "      </div>" +
         '      <template v-for="(bp, idx) in breadcrumbPaths" :key="bp.PathUrl || idx">' +
@@ -616,7 +801,7 @@
     };
   }
 
-  window.PanVueTheme = {
+  window.PanOxygenTheme = {
     Icon: Icon,
     cookieGet: cookieGet,
     cookieSet: cookieSet,
@@ -648,11 +833,13 @@
         parent_path: raw.parent_path || "/",
         search_key: raw.search_key || "",
         layout: raw.layout || "view_comfy",
-        theme: raw.theme || "vue",
+        theme: raw.theme || "oxygen",
         is_admin_login: raw.is_admin_login,
         version: raw.version || "",
       };
       createListingApp(data).mount("#app");
     },
   };
+  // Backward-compatible alias for older scripts/bookmarks.
+  window.PanVueTheme = window.PanOxygenTheme;
 })();

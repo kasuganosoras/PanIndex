@@ -1,7 +1,7 @@
-{{define "templates/pan/vue/view-video.html"}}
-{{template "templates/pan/vue/view-base.html" .}}
+﻿{{define "templates/pan/oxygen/view-video.html"}}
+{{template "templates/pan/oxygen/view-base.html" .}}
 {{end}}
-{{define "vue-content-video"}}
+{{define "oxygen-content-video"}}
 <div id="video_content" class="rounded-lg border border-[var(--vt-border)] p-4 m-2">
 	<button id="playlistBtn" type="button" data-account-id="{{$.account.Id}}"
 			data-config-subtitle="{{$.config.Subtitle}}"
@@ -25,7 +25,7 @@
 	<div class="danmuinput"></div>
 </div>
 {{end}}
-{{define "vue-scripts-video"}}
+{{define "oxygen-scripts-video"}}
 <link rel="stylesheet" href="{{index $.config.CdnFiles "mdui@css"}}"/>
 <script src="{{index $.config.CdnFiles "mdui@js"}}"></script>
 <script src="{{index $.config.CdnFiles "hls@js"}}"></script>

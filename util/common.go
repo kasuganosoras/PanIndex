@@ -152,7 +152,7 @@ func GetIcon(isFolder bool, fileType string) string {
 			"pdf":     "fas fa-file-alt",
 			"md":      "fas fa-file-alt",
 		},
-		"vue": KV{
+		"oxygen": KV{
 			"folder":  "folder-open",
 			"image":   "image",
 			"audio":   "music",
@@ -342,7 +342,7 @@ func SortFileNode(sortColumn, sortOrder string, list []module.FileNode) {
 		sortColumn = "file_name"
 	}
 	if sortOrder == "null" {
-		sortColumn = "asc"
+		sortOrder = "asc"
 	}
 	sort.SliceStable(list, func(i, j int) bool {
 		if list[i].IsFolder != list[j].IsFolder {
@@ -454,15 +454,16 @@ func GetCdnFilesMap(cdn, version string) map[string]string {
 			"pdfh5@js":                   prefix + "/static/lib/pdfh5@1.4.0/js/pdfh5.js",
 			"natural@compare@js":         prefix + "/static/lib/natural-compare-lite@1.4.0/index.min.js",
 			"bootstrap@css":              prefix + "/static/lib/bootstrap@4.6.1/css/bootstrap.min.css",
-			"bootstrap@js":               prefix + "/static/lib/bootstrap@4.6.1/js/bootstrap.min.js",
+			"bootstrap@js":               prefix + "/static/lib/bootstrap@4.6.1/js/bootstrap.bundle.min.js",
+			"bootstrap@theme@css":        prefix + "/static/css/bootstrap-theme.css",
 			"Material+Icons@css":         prefix + "/static/css/Material+Icons.css",
 			"vue@js":                     prefix + "/static/lib/vue@3.4.21/dist/vue.global.prod.js",
 			"vue-router@js":              prefix + "/static/lib/vue-router@4.3.0/dist/vue-router.global.prod.js",
 			"tailwind@js":                prefix + "/static/lib/tailwindcss/tailwindcss.js",
 			"lucide@js":                  prefix + "/static/lib/lucide@0.460.0/dist/umd/lucide.min.js",
-			"vue@theme@js":               prefix + "/static/js/vue-theme/app.js",
-			"vue@theme@css":              prefix + "/static/css/vue-theme.css",
-			"vue@view@js":                prefix + "/static/js/vue-theme/view.js",
+			"oxygen@theme@js":            prefix + "/static/js/oxygen-theme/app.js",
+			"oxygen@theme@css":           prefix + "/static/css/oxygen-theme.css",
+			"oxygen@view@js":             prefix + "/static/js/oxygen-theme/view.js",
 		},
 		"1": KV{
 			"mdui@css":                   "//cdn.staticfile.org/mdui/1.0.2/css/mdui.min.css",
@@ -507,15 +508,16 @@ func GetCdnFilesMap(cdn, version string) map[string]string {
 			"pdfh5@js":                   "//fastly.jsdelivr.net/npm/pdfh5@1.4.2/js/pdfh5.js",
 			"natural@compare@js":         "//fastly.jsdelivr.net/npm/natural-compare-lite@1.4.0/index.js",
 			"bootstrap@css":              "//cdn.staticfile.org/bootstrap/4.6.1/css/bootstrap.min.css",
-			"bootstrap@js":               "//cdn.staticfile.org/bootstrap/4.6.1/js/bootstrap.min.js",
+			"bootstrap@js":               "//cdn.staticfile.org/bootstrap/4.6.1/js/bootstrap.bundle.min.js",
+			"bootstrap@theme@css":        prefix + "/static/css/bootstrap-theme.css",
 			"Material+Icons@css":         "//fonts.loli.net/icon?family=Material+Icons",
 			"vue@js":                     "https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js",
 			"vue-router@js":              "https://cdn.jsdelivr.net/npm/vue-router@4.3.0/dist/vue-router.global.prod.js",
 			"tailwind@js":                "https://cdn.tailwindcss.com",
 			"lucide@js":                  "https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js",
-			"vue@theme@js":               prefix + "/static/js/vue-theme/app.js",
-			"vue@theme@css":              prefix + "/static/css/vue-theme.css",
-			"vue@view@js":                prefix + "/static/js/vue-theme/view.js",
+			"oxygen@theme@js":            prefix + "/static/js/oxygen-theme/app.js",
+			"oxygen@theme@css":           prefix + "/static/css/oxygen-theme.css",
+			"oxygen@view@js":             prefix + "/static/js/oxygen-theme/view.js",
 		},
 		"2": KV{
 			"mdui@css":                   jp + "/static/lib/mdui@1.0.2/css/mdui.min.css",
@@ -560,15 +562,16 @@ func GetCdnFilesMap(cdn, version string) map[string]string {
 			"pdfh5@js":                   jp + "/static/lib/pdfh5@1.4.0/js/pdfh5.js",
 			"natural@compare@js":         jp + "/static/lib/natural-compare-lite@1.4.0/index.min.js",
 			"bootstrap@css":              jp + "/static/lib/bootstrap@4.6.1/css/bootstrap.min.css",
-			"bootstrap@js":               jp + "/static/lib/bootstrap@4.6.1/js/bootstrap.min.js",
+			"bootstrap@js":               jp + "/static/lib/bootstrap@4.6.1/js/bootstrap.bundle.min.js",
+			"bootstrap@theme@css":        jp + "/static/css/bootstrap-theme.css",
 			"Material+Icons@css":         "//fonts.loli.net/icon?family=Material+Icons",
 			"vue@js":                     jp + "/static/lib/vue@3.4.21/dist/vue.global.prod.js",
 			"vue-router@js":              jp + "/static/lib/vue-router@4.3.0/dist/vue-router.global.prod.js",
 			"tailwind@js":                jp + "/static/lib/tailwindcss/tailwindcss.js",
 			"lucide@js":                  jp + "/static/lib/lucide@0.460.0/dist/umd/lucide.min.js",
-			"vue@theme@js":               jp + "/static/js/vue-theme/app.js",
-			"vue@theme@css":              jp + "/static/css/vue-theme.css",
-			"vue@view@js":                jp + "/static/js/vue-theme/view.js",
+			"oxygen@theme@js":            jp + "/static/js/oxygen-theme/app.js",
+			"oxygen@theme@css":           jp + "/static/css/oxygen-theme.css",
+			"oxygen@view@js":             jp + "/static/js/oxygen-theme/view.js",
 		},
 	}
 	cdnKV := cdnMap["0"].(KV)
@@ -812,8 +815,9 @@ func GetCurrentTheme(theme string) string {
 	if strings.HasPrefix(theme, "mdui") {
 		return "mdui"
 	}
-	if strings.HasPrefix(theme, "vue") {
-		return "vue"
+	// oxygen is the current name; keep vue* as a compatibility alias.
+	if strings.HasPrefix(theme, "oxygen") || strings.HasPrefix(theme, "vue") {
+		return "oxygen"
 	}
 	return theme
 }

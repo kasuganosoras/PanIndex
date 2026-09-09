@@ -1,7 +1,7 @@
-{{define "templates/pan/vue/view-epub.html"}}
-{{template "templates/pan/vue/view-base.html" .}}
+﻿{{define "templates/pan/oxygen/view-epub.html"}}
+{{template "templates/pan/oxygen/view-base.html" .}}
 {{end}}
-{{define "vue-content-epub"}}
+{{define "oxygen-content-epub"}}
 <div class="rounded-lg border border-[var(--vt-border)] p-4 m-2 relative">
 	<select id="toc" class="block mx-auto mb-3 px-3 py-2 rounded-md border border-[var(--vt-border)] bg-[var(--vt-card)] text-[var(--vt-text)]"></select>
 	<div id="viewer" class="vt-md"></div>
@@ -9,7 +9,7 @@
 	<a id="next" href="#next" class="arrow absolute right-2 top-1/2 text-3xl opacity-60 hover:opacity-100">›</a>
 </div>
 {{end}}
-{{define "vue-scripts-epub"}}
+{{define "oxygen-scripts-epub"}}
 <script src="{{index $.config.CdnFiles "jszip@js"}}"></script>
 <script src="{{index $.config.CdnFiles "epub@js"}}"></script>
 <script>

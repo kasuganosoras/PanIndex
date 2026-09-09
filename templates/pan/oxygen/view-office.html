@@ -1,12 +1,12 @@
-{{define "templates/pan/vue/view-office.html"}}
-{{template "templates/pan/vue/view-base.html" .}}
+﻿{{define "templates/pan/oxygen/view-office.html"}}
+{{template "templates/pan/oxygen/view-base.html" .}}
 {{end}}
-{{define "vue-content-office"}}
+{{define "oxygen-content-office"}}
 <iframe id="view_office" class="rounded-lg" src="" style="width:100%;min-height:600px" frameborder="0">
 	This is an embedded office file
 </iframe>
 {{end}}
-{{define "vue-scripts-office"}}
+{{define "oxygen-scripts-office"}}
 <script>
 	(function () {
 		var path = document.getElementById("view_down_link").getAttribute("data-path");
