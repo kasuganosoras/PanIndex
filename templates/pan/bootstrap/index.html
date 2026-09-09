@@ -190,7 +190,8 @@
 								README.md
 							</div>
 							<div class="card-body">
-								<script src="{{index $.config.CdnFiles "marked@js"}}"></script>
+								<script src="{{index $.config.CdnFiles "markdown-it@js"}}"></script>
+								<script src="{{index $.config.CdnFiles "markdown@js"}}"></script>
 								<p id="content" class="card-text">
 								</p>
 								<script>
@@ -201,7 +202,7 @@
 									var key = md5(fullUrl);
 									var c = localStorage.getItem(key);
 									if(c && c != null && c != ""){
-										$("#content").html(marked.parse(c));
+										$("#content").html(parseMarkdown(c));
 										$("#readmeDiv").show();
 										mdContent(fullUrl, key, false);
 									}else{

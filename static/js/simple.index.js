@@ -219,9 +219,9 @@ function mdContent(fullUrl, key, isMark) {
             if(data && !data.status){
                 localStorage.setItem(key, data);
                 if(isMark){
-                    $("#content").html(marked.parse(c));
+                    $("#content").html(parseMarkdown(data));
                     $("#readmeDiv").show();
-                }
+               }
             }else{
                 localStorage.removeItem(key);
             }
