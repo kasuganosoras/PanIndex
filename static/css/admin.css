@@ -47,6 +47,35 @@ body {
     overflow: hidden;
 }
 
+.admin-sidebar {
+    width: 16rem;
+    transition: transform .2s ease, width .2s ease, border-color .2s ease, opacity .2s ease;
+}
+
+.admin-sidebar.is-open {
+    transform: translateX(0);
+}
+
+.admin-sidebar.is-closed {
+    transform: translateX(-100%);
+}
+
+@media (min-width: 1024px) {
+    .admin-sidebar.is-open {
+        width: 16rem;
+        transform: none;
+    }
+
+    .admin-sidebar.is-closed {
+        width: 0;
+        transform: none;
+        border-color: transparent !important;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+    }
+}
+
 .admin-card {
     background: var(--admin-card);
     border: 1px solid var(--admin-border);

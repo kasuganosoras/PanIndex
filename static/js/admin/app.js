@@ -60,7 +60,9 @@
       data: function () {
         return {
           store: store,
-          drawerOpen: false,
+          drawerOpen:
+            typeof window !== "undefined" &&
+            window.matchMedia("(min-width: 1024px)").matches,
           openCommon: true,
           openSafe: false,
           configDialog: false,
@@ -79,20 +81,30 @@
       watch: {
         "$route.path": {
           immediate: true,
-          handler: function (p) {
+          handler: function (p, oldP) {
             if (["/common", "/appearance", "/view"].indexOf(p) >= 0) {
               this.openCommon = true;
             }
             if (["/access", "/pwd", "/hide", "/safety"].indexOf(p) >= 0) {
               this.openSafe = true;
             }
-            this.drawerOpen = false;
+            // 仅移动端在路由切换后自动收起抽屉
+            if (
+              oldP != null &&
+              typeof window !== "undefined" &&
+              window.matchMedia("(max-width: 1023px)").matches
+            ) {
+              this.drawerOpen = false;
+            }
           },
         },
       },
       methods: {
         isActive: function (path) {
           return this.$route.path === path;
+        },
+        toggleDrawer: function () {
+          this.drawerOpen = !this.drawerOpen;
         },
         toggleTheme: function () {
           var next = this.store.dark ? "light" : "dark";
@@ -137,9 +149,8 @@
       template:
         '<div class="h-full max-w-full overflow-hidden flex flex-col">' +
         '  <header class="shrink-0 sticky top-0 z-40 h-14 flex items-center gap-3 px-3 text-white shadow" style="background: var(--admin-topbar)">' +
-        '    <button type="button" class="admin-btn !text-white !border-transparent hover:!bg-white/10 !p-2 lg:hidden" @click="drawerOpen=!drawerOpen"><pa-icon name="menu" :size="20"></pa-icon></button>' +
-        '    <button type="button" class="hidden lg:inline-flex admin-btn !text-white !border-transparent hover:!bg-white/10 !p-2" @click="drawerOpen=!drawerOpen"><pa-icon name="menu" :size="20"></pa-icon></button>' +
-        '    <button type="button" class="font-semibold tracking-wide" @click="goHome">PanIndex</button>' +
+        '    <button type="button" class="admin-btn !text-white !border-transparent hover:!bg-white/10 !p-2" @click="toggleDrawer" :title="drawerOpen ? \'收起导航\' : \'展开导航\'"><pa-icon :name="drawerOpen ? \'panel-left-close\' : \'panel-left-open\'" :size="20"></pa-icon></button>' +
+        '    <button type="button" class="font-semibold tracking-wide truncate max-w-[12rem] sm:max-w-xs" @click="goHome">{{ store.config.site_name || "PanIndex" }}</button>' +
         '    <span class="opacity-90 text-sm">配置</span>' +
         '    <div class="flex-1"></div>' +
         '    <pa-tooltip content="配置（JSON）" placement="bottom"><button type="button" class="admin-btn !text-white !border-transparent hover:!bg-white/10 !p-2" @click="openConfigDialog"><pa-icon name="settings" :size="18"></pa-icon></button></pa-tooltip>' +
@@ -149,7 +160,7 @@
 
         '  <div class="flex flex-1 min-h-0 min-w-0 overflow-hidden">' +
         '    <div v-if="drawerOpen" class="fixed inset-0 z-30 bg-black/40 lg:hidden" @click="drawerOpen=false"></div>' +
-        '    <aside :class="[\'fixed lg:static z-40 lg:z-0 top-14 bottom-0 w-64 shrink-0 border-r transition-transform duration-200 flex flex-col\', drawerOpen ? \'translate-x-0\' : \'-translate-x-full lg:translate-x-0\']" style="background: var(--admin-sidebar); border-color: var(--admin-border)">' +
+        '    <aside :class="[\'admin-sidebar z-40 top-14 bottom-0 shrink-0 border-r flex flex-col fixed lg:static lg:top-auto lg:bottom-auto\', drawerOpen ? \'is-open\' : \'is-closed\']" style="background: var(--admin-sidebar); border-color: var(--admin-border)">' +
         '      <nav class="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-1 text-sm">' +
         '        <router-link :to="navHome.path" class="flex items-center gap-2 px-3 py-2 rounded-lg" :class="isActive(navHome.path) ? \'bg-[var(--admin-primary)]/10 text-[var(--admin-primary)] font-medium\' : \'hover:bg-black/5 dark:hover:bg-white/5\'">' +
         '          <pa-icon :name="navHome.icon" :size="16" class-name="text-sky-500"></pa-icon><span>{{ navHome.label }}</span>' +
